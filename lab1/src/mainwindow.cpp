@@ -1,8 +1,6 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
-#include "gpxparser.h"
-#include "coder.h"
-#include "commanddirector.h"
+#include "georoute.h"
 
 #include <QFileDialog>
 #include <QDebug>
@@ -10,87 +8,69 @@
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
-    ui(new Ui::MainWindow),
-    m_routes(nullptr)
+    ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
-    GpxParser parser;
-//    QList<GeoRoute> routes = parser.parse(QStringList() << "/home/ntl/Desktop/temp/ppo/lab1/route1.gpx"
-//            << "/home/ntl/Desktop/temp/ppo/lab1/lissabon_vladivostok.gpx");
-    QList<GeoRoute> routes = parser.parse(QStringList() <<  "C:/temp/ppo/lab1/route1.gpx"
-            << "C:/temp/ppo/lab1/lissabon_vladivostok.gpx");
-    m_routes = new TreeModel(routes);
-    ui->routes->setModel(m_routes);
-    for (int i = 0; i < m_routes->columnCount(QModelIndex()); i++)
-        ui->routes->resizeColumnToContents(i);
-
-    connect(ui->routes, SIGNAL(selectedRoute(int)), this, SLOT(routeWasSelected(int)));
 }
 
 MainWindow::~MainWindow()
 {
-    delete ui;
-    delete m_routes;
+
+}
+
+void MainWindow::showRoute(const GeoRoute &route)
+{
+    ui->routes->insertRoute(route);
 }
 
 
 
 void MainWindow::on_insertroute_triggered()
 {
-    ui->routes->insert();
+    int route = ui->routes->currentRoute();
+    if (ui->routes->currentIsRoute())
+        ui->routes->insertRoute(GeoRoute(), route + 1);
+    else
+    {
+        int coordinate = ui->routes->currentCoordinate();
+        ui->routes->insertCoordinate(QGeoCoordinate(0, 0, _nan()), route, coordinate + 1);
+    }
 }
 
 void MainWindow::on_deleteroute_triggered()
 {
-    ui->routes->remove();
+    int route = ui->routes->currentRoute();
+    if (ui->routes->currentIsRoute())
+        ui->routes->removeRoute(route);
+    else
+    {
+        int coordinate = ui->routes->currentCoordinate();
+        ui->routes->removeCoordinate(route, coordinate);
+    }
 }
 
-void MainWindow::routeWasSelected(int i)
-{
-    static int t = -1;
 
-    if (t == i)
-        return;
-    t = i;
-    Coder coder;
-    QString polyline = coder.encode(m_routes->getData(i).path());
-    ui->polyline->setText(polyline);
-}
 
 void MainWindow::on_open_triggered()
 {
-    GpxParser parser;
-    QStringList files = QFileDialog::getOpenFileNames(this, QString("Выберите файлы"),QString(),"*.gpx");
-    if (!files.length())
-        return;
-    QList<GeoRoute> routes = parser.parse(files);  
-    new AddDataCommand(m_routes, routes);
+   QStringList filenames = QFileDialog::getOpenFileNames(this, "Выберите файлы", QString(), "*.gpx");
+   emit Open(filenames);
 }
 
 
 void MainWindow::on_pushButton_clicked()
 {
-    Coder coder;
-    QString polyline = ui->import_2->toPlainText();
-    GeoRoute route = GeoRoute(QGeoPath(coder.decode(polyline)));
-    if (!route.length()) {
-        QMessageBox msg;
-        msg.setWindowTitle("Некорректный полилайн");
-        msg.setText("Введите корректный полилайн.");
-        msg.exec();
-        return;
-    }
-    QList<GeoRoute> routes;
-    routes << route;
-    new AddDataCommand(m_routes, routes);
+    QString s = ui->polyline->document()->toPlainText();
+    emit fromPolyline(s);
 }
 
 void MainWindow::on_undo_triggered()
 {
-    CommandDirector::undo();
+
+    emit Undo();
 }
 
 void MainWindow::on_redo_triggered()
 {
-    CommandDirector::redo();
+    emit Redo();
 }

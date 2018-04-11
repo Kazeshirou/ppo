@@ -14,16 +14,16 @@ class MainWindow : public QMainWindow
     Q_OBJECT
 
 public:
-    explicit MainWindow(QWidget *parent = 0);
+    explicit MainWindow(QWidget *parent = nullptr);
     ~MainWindow();
+
+    void showRoute(const GeoRoute &route);
 protected:
 
 private slots:
     void on_insertroute_triggered();
 
     void on_deleteroute_triggered();
-
-    void routeWasSelected(int i);
 
     void on_open_triggered();
 
@@ -33,9 +33,14 @@ private slots:
 
     void on_redo_triggered();
 
+signals:
+    void Open(QStringList filenames);
+    void fromPolyline(QString s);
+    void Redo();
+    void Undo();
+
 private:
     Ui::MainWindow *ui;
-    TreeModel *m_routes;
 };
 
 #endif // MAINWINDOW_H

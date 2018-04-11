@@ -21,4 +21,15 @@ protected:
 
 };
 
+class SaveParser
+{
+public:
+    explicit SaveParser();
+    QList<GeoRoute> parse() const;
+    void save(const QList<GeoRoute> &routes) const;
+private:
+    QString filename;
+};
+
+
 #endif // GPXPARSER_H

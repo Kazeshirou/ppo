@@ -4,6 +4,8 @@
 #include <QGeoPath>
 #include <QDateTime>
 
+#include "coder.h"
+
 class GeoRoute : public QGeoPath
 {
 public:
@@ -15,8 +17,9 @@ public:
         m_distance(0),
         m_date(date)
     {
+        addCoordinate(QGeoCoordinate(0, 0, _nan()));
         if (path.path().length())
-            m_distance = path.length();
+            setDistance();
     }
 
     void setName(const QString &name) { m_name = name; }
@@ -29,6 +32,8 @@ public:
     void setDate() { m_date = QDateTime::currentDateTime(); }
     void setDate(const QDateTime &date) { m_date = date; }
     QDateTime getDate() const { return m_date; }
+
+    QString getPolyline() const { return Coder::encode(this->path()); }
 
 private:
     QString m_name;

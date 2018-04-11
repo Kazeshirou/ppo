@@ -15,8 +15,7 @@ void TestCoder::encode()
         QGeoCoordinate(41.83499,-87.66241)
     };
 
-    Coder coder;
-    QCOMPARE(coder.encode(route1), QString("}qn~FftzuOr{Bre@rXduC"));
+    QCOMPARE(Coder::encode(route1), QString("}qn~FftzuOr{Bre@rXduC"));
 }
 
 void TestCoder::decode()
@@ -27,6 +26,6 @@ void TestCoder::decode()
         QGeoCoordinate(41.83499,-87.66241)
     };
 
-    Coder coder;
-    QCOMPARE(coder.decode(QString("}qn~FftzuOr{Bre@rXduC")), route1);
+
+    QCOMPARE(Coder::decode(QString("}qn~FftzuOr{Bre@rXduC")), route1);
 }

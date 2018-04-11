@@ -11,26 +11,22 @@ SOURCES += \
     mainwindow.cpp \
     gpxparser.cpp \
     coder.cpp \
-    treemodelitem.cpp \
-    treemodel.cpp \
-    treeview.cpp \
     commanddirector.cpp \
     command.cpp \
     presenter.cpp \
-    model.cpp
+    model.cpp \
+    treewidget.cpp
 
 HEADERS += \
     mainwindow.h \
     gpxparser.h \
     coder.h \
-    treemodelitem.h \
-    treemodel.h \
     georoute.h \
-    treeview.h \
     commanddirector.h \
     command.h \
     presenter.h \
-    model.h
+    model.h \
+    treewidget.h
 
 FORMS += \
     mainwindow.ui

@@ -9,17 +9,17 @@ class QGeoCoordinate;
 class Coder
 {
 
+    Coder() = default;
 public:
-    explicit Coder() = default;
 
-    QString encode(const QList<QGeoCoordinate> &route);
-    QList<QGeoCoordinate> decode(const QString &polyline);
+    static QString encode(const QList<QGeoCoordinate> &route);
+    static QList<QGeoCoordinate> decode(const QString &polyline);
 
 protected:
-    QString encodeCoordinate(const QGeoCoordinate &coordinate);
-    QString encodeNumber(double number);
-    int decodeCoordinate(QString &polyline, QGeoCoordinate &coordinate);
-    double decodeNumber(QString &polyline);
+    static QString encodeCoordinate(const QGeoCoordinate &coordinate);
+    static QString encodeNumber(double number);
+    static int decodeCoordinate(QString &polyline, QGeoCoordinate &coordinate);
+    static double decodeNumber(QString &polyline);
 };
 
 #endif // CODER_H

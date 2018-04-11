@@ -1,5 +1,5 @@
 #include "presenter.h"
-
+#include "gpxparser.h"
 #include <QApplication>
 
 int main(int argc, char *argv[])
