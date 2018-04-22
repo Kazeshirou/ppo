@@ -11,13 +11,15 @@ SOURCES += \
     testgpxparser.cpp \
     ../src/gpxparser.cpp \
     testcoder.cpp \
-    ../src/coder.cpp
+    ../src/coder.cpp \
+    ../src/georoute.cpp
 
 HEADERS += \
     testgpxparser.h \
     ../src/gpxparser.h \
     testcoder.h \
     ../src/coder.h \
+    ../src/georoute.h
 
 
 

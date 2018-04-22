@@ -15,7 +15,8 @@ SOURCES += \
     command.cpp \
     presenter.cpp \
     model.cpp \
-    treewidget.cpp
+    treewidget.cpp \
+    georoute.cpp
 
 HEADERS += \
     mainwindow.h \

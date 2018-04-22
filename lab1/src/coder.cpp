@@ -3,10 +3,10 @@
 #include <QGeoCoordinate>
 #include <QtMath>
 
-QString Coder::encode(const QList<QGeoCoordinate> &route)
+QList<QList<QString>> Coder::encode(const QList<QGeoCoordinate> &route)
 {
     QGeoCoordinate lastcoordinate(0,0);
-    QString polyline;
+    QList<QList<QString>> polyline;
     for (int i = 0; i < route.length(); i++) {
         QGeoCoordinate delta(route[i].latitude()-lastcoordinate.latitude(),
                              route[i].longitude()-lastcoordinate.longitude());
@@ -38,9 +38,9 @@ QList<QGeoCoordinate> Coder::decode(const QString &polyline)
     return route;
 }
 
-QString Coder::encodeCoordinate(const QGeoCoordinate &coordinate)
+QList<QString> Coder::encodeCoordinate(const QGeoCoordinate &coordinate)
 {
-    return encodeNumber(coordinate.latitude()) + encodeNumber(coordinate.longitude());
+    return QList<QString>() << encodeNumber(coordinate.latitude()) << encodeNumber(coordinate.longitude());
 }
 
 QString Coder::encodeNumber(double number)

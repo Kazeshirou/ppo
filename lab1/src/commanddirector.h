@@ -3,23 +3,21 @@
 
 #include "command.h"
 
-#include "QStack"
-
-template <class T>
-class QStack;
+#include <QStack>
 
 class CommandDirector
 {
 public:
-    static void addCommand(Command *command);
-    static void redo();
-    static void undo();
+
+    explicit CommandDirector();
+    ~CommandDirector();
+    void addCommand(Command *command);
+    void redo();
+    void undo();
 
 private:
-    explicit CommandDirector() = default;
-    static QStack<Command *> undostack;
-    static QStack<Command *> redostack;
-
+    QStack<Command *> undostack;
+    QStack<Command *> redostack;
 };
 
 #endif // COMMANDDIRECTOR_H

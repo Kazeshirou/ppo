@@ -15,7 +15,7 @@ void TreeWidget::insertRoute(const GeoRoute &route, int index)
     QTreeWidgetItem *routeitem = new QTreeWidgetItem((QTreeWidget *)0,
                                                 QStringList() << route.getName() <<
                                                 QString::number(route.getDistance()) <<
-                                                route.getDate().toString(Qt::SystemLocaleLongDate));
+                                                route.getDate().toString(Qt::SystemLocaleShortDate));
     routeitem->setFlags(Qt::ItemIsEditable | Qt::ItemIsEnabled | Qt::ItemIsSelectable);
     foreach (QGeoCoordinate coord, route.path())
     {
@@ -34,6 +34,9 @@ void TreeWidget::insertRoute(const GeoRoute &route, int index)
     foreach (QTreeWidgetItem *item, selectedItems())
         setItemSelected(item, false);
     setItemSelected(routeitem, true);
+    setCurrentItem(routeitem);
+
+    emit itemSelectionChanged();
 }
 
 void TreeWidget::removeRoute(const int index)
@@ -45,6 +48,7 @@ void TreeWidget::removeRoute(const int index)
         takeTopLevelItem(count);
     else
         takeTopLevelItem(index);
+    emit itemSelectionChanged();
 }
 
 void TreeWidget::insertCoordinate(const QGeoCoordinate &coordinate, const int route, const int index)
@@ -77,15 +81,15 @@ void TreeWidget::removeCoordinate(const int route, const int index)
         else
             t->removeChild(t->child(index));
     }
-    if (!t->childCount())
-        takeTopLevelItem(route);
 }
 
 int TreeWidget::currentRoute()
 {
-    QTreeWidgetItem *t = currentItem();
+    if (!selectedItems().length())
+        return -1;
+    QTreeWidgetItem *t = selectedItems().at(0);
     if (!t)
-        return 0;
+        return -1;
     int index = indexOfTopLevelItem(t);
     if (index < 0)
         index = indexOfTopLevelItem(t->parent());
@@ -96,8 +100,10 @@ int TreeWidget::currentRoute()
 
 int TreeWidget::currentCoordinate()
 {
+    if (!selectedItems().length())
+        return -1;
     QTreeWidgetItem *t = topLevelItem(currentRoute());
-    int index = t->indexOfChild(currentItem());
+    int index = t->indexOfChild(selectedItems().at(0));
     if (index < 0)
         index = t->childCount() - 1;
     return index;
@@ -106,6 +112,24 @@ int TreeWidget::currentCoordinate()
 bool TreeWidget::currentIsRoute()
 {
     return (!topLevelItemCount() || !currentItem() || (indexOfTopLevelItem(currentItem()) >= 0));
+}
+
+void TreeWidget::changeRoute(int index, QString newname)
+{
+    QTreeWidgetItem *t = topLevelItem(index);
+    if (t)
+        t->setData(0, Qt::DisplayRole | Qt::EditRole, QVariant(newname));
+}
+
+void TreeWidget::changeCoordinate(int route, int index, int column, double newvalue)
+{
+    QTreeWidgetItem *t = topLevelItem(route);
+    if (t)
+    {
+        t = t->child(index);
+        if (t)
+            t->setData(column, Qt::DisplayRole | Qt::EditRole, QVariant(newvalue));
+    }
 }
 
 bool TreeWidget::edit(const QModelIndex &index, QAbstractItemView::EditTrigger trigger, QEvent *event)
@@ -126,11 +150,10 @@ void TreeWidget::commitData(QWidget *editor)
         if (!currentIsRoute()) {
             s.replace(',', '.');
             dynamic_cast<QLineEdit *>(editor)->setText(QString::number(s.toDouble()));
-            emit coordinateWasChanged(currentRoute(), currentCoordinate(), currentIndex().column(),  s.toDouble());
+            emit s_changeCoordinate(currentRoute(), currentCoordinate(), currentIndex().column(),  s.toDouble());
         }
         else
-            emit routeWasChanged(currentRoute(), s);
-        QTreeWidget::commitData(editor);
+            emit s_changeRoute(currentRoute(), s);
     }
 }
 

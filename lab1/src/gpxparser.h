@@ -4,7 +4,8 @@
 #include "georoute.h"
 
 #include <QList>
-#include <QGeoCoordinate>
+
+class QGeoCoordinate;
 
 class QStringList;
 class QXmlStreamReader;
@@ -14,10 +15,10 @@ class GpxParser
 
 public:
     explicit GpxParser() = default;
-    QList<GeoRoute> parse(QStringList &filenames);
+    QList<GeoRoute> parse(const QStringList &filenames);
 protected:
     QGeoCoordinate readCoordinate(QXmlStreamReader &inputStream);
-    GeoRoute parseFile(QString &filename);
+    GeoRoute parseFile(const QString &filename);
 
 };
 

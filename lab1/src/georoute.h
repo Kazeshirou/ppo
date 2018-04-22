@@ -11,34 +11,36 @@ class GeoRoute : public QGeoPath
 public:
     explicit GeoRoute(const QGeoPath &path = QGeoPath(),
                       const QString &name = QString("route"),
-                      const QDateTime &date = QDateTime::currentDateTime()) :
-        QGeoPath(path),
-        m_name(name),
-        m_distance(0),
-        m_date(date)
-    {
-        addCoordinate(QGeoCoordinate(0, 0, _nan()));
-        if (path.path().length())
-            setDistance();
-    }
+                      const QDateTime &date = QDateTime::currentDateTime());
 
-    void setName(const QString &name) { m_name = name; }
-    QString getName() const { return m_name; }
+    void insertCoordinate(int index, const QGeoCoordinate &coordinate);
+    void removeCoordinate(int index);
+    void setPath(const QList<QGeoCoordinate> &path);
 
-    void setDistance() { m_distance = length()/1000.; }
-    void setDistance(const double distance) { m_distance = distance; }
-    double getDistance() const { return m_distance; }
+    void changeLatitude(int index, double newvalue);
+    void changeLongitude(int index, double newvalue);
+    void changeAltitude(int index, double newvalue);
 
-    void setDate() { m_date = QDateTime::currentDateTime(); }
-    void setDate(const QDateTime &date) { m_date = date; }
-    QDateTime getDate() const { return m_date; }
+    void changePolyline(int index);
 
-    QString getPolyline() const { return Coder::encode(this->path()); }
+    void setName(const QString &name);
+    QString getName() const;
+
+    void setDistance();
+    void setDistance(float d);
+    double getDistance() const;
+
+    void setDate();
+    void setDate(const QDateTime &date);
+    QDateTime getDate() const;
+
+    QString getPolyline() const;
 
 private:
     QString m_name;
     double m_distance;
     QDateTime m_date;
+    QList<QList<QString>> m_polyline;
 };
 
 #endif // GEOROUTE_H

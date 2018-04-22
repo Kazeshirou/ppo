@@ -1,8 +1,9 @@
 #ifndef MODEL_H
 #define MODEL_H
 
-#include <QObject>
 #include "georoute.h"
+
+#include <QObject>
 
 class Model : public QObject
 {
@@ -13,30 +14,35 @@ public:
     explicit Model(QObject *parent = nullptr);
     ~Model();
 
-    int createRoute(int index = -1, GeoRoute route = GeoRoute());
+    void createRoute(int index = -1, const GeoRoute &route = GeoRoute());
     void removeRoute(int index);
 
+    void createCoordinate(int route, int index = -1);
+    void removeCoordinate(int route, int index = -1);
+
     void editRouteName(int index, QString name);
-    void editRouteDate(int index, QDateTime date);
+    void editCoordinate(int route, int index, int column, double newvalue);
 
-    void createCoordinate(int index = -1);
-    void removeCoordinate(int index);
-
-    void editCoordinateLatitude(int route, int index, double latitude);
-    void editCoordinateLongitude(int route, int index, double longitude);
-    void editCoordinateAltitude(int route, int index, double altitude);
-
-    void addRoutesFromFiles(QStringList filenames);
+    void addRoutesFromFiles(const QStringList filenames);
     void addRouteFromPolyline(QString polyline);
 
     void loadFromSave();
+    void save();
+
+    QString getPolyline(int route);
 
 signals:
-    void RouteWasCreated(const GeoRoute &route);
+    void s_routeCreated(const GeoRoute &route, int index);
+    void s_routeRemoved(int index);
+    void s_nameChanged(QString name, int index);
+    void s_coordinateCreated(QGeoCoordinate coord, int route, int index);
+    void s_coordinateRemoved(int route, int index);
+    void s_coordinateChanged(double newvalue, int route, int index, int column);
+    void s_polylineChanged(QString s);
+
 private:
     QList<GeoRoute> m_routes;
-    GeoRoute *curroute;
-    QString *polyline;
+
 };
 
 #endif // MODEL_H

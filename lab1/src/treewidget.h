@@ -24,9 +24,13 @@ public:
     int currentCoordinate();
     bool currentIsRoute();
 
+    void changeRoute(int index, QString newname);
+    void changeCoordinate(int route, int index, int column, double newvalue);
+
 signals:
-    void routeWasChanged(int index, QString newname);
-    void coordinateWasChanged(int route, int coordinate, int column, double newvalue);
+    void s_changeRoute(int index, QString newname);
+    void s_changeCoordinate(int route, int index, int column, double newvalue);
+
 protected:
     bool edit(const QModelIndex &index, EditTrigger trigger, QEvent *event);
 

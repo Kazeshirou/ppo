@@ -1,11 +1,15 @@
 #include "commanddirector.h"
 
-QStack<Command *> CommandDirector::undostack;
-QStack<Command *> CommandDirector::redostack;
+CommandDirector::CommandDirector()
+{
+    redostack.clear();
+    undostack.clear();
+}
 
 void CommandDirector::addCommand(Command *command)
 {
-    command->redo();
+    if (!command)
+        return;
     undostack.push(command);
 }
 
@@ -25,4 +29,12 @@ void CommandDirector::undo()
     Command *command = undostack.pop();
     command->undo();
     redostack.push(command);
+}
+
+CommandDirector::~CommandDirector()
+{
+    while (!redostack.isEmpty())
+        delete redostack.pop();
+    while (!undostack.isEmpty())
+        delete undostack.pop();
 }

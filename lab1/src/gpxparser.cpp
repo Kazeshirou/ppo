@@ -1,5 +1,7 @@
 #include "gpxparser.h"
+#include "georoute.h"
 
+#include <QGeoCoordinate>
 #include <QXmlStreamReader>
 #include <QFile>
 #include <iostream>
@@ -11,7 +13,7 @@ QGeoCoordinate GpxParser::readCoordinate(QXmlStreamReader &inputStream)
     QGeoCoordinate coordinate;
     coordinate.setLongitude(inputStream.attributes().value("lon").toDouble());
     coordinate.setLatitude(inputStream.attributes().value("lat").toDouble());
-    coordinate.setAltitude(_nan());
+    coordinate.setAltitude(nan(""));
     inputStream.readNext();
     while (!inputStream.atEnd() && !inputStream.hasError() && (inputStream.name().toString() != "wpt") && (inputStream.name().toString() != "trkpt"))
     {
@@ -26,7 +28,7 @@ QGeoCoordinate GpxParser::readCoordinate(QXmlStreamReader &inputStream)
     return coordinate;
 }
 
-GeoRoute GpxParser::parseFile(QString &filename)
+GeoRoute GpxParser::parseFile(const QString &filename)
 {
     QFile file(filename);
     if (!file.open(QIODevice::ReadOnly | QIODevice::Text))
@@ -86,7 +88,7 @@ GeoRoute GpxParser::parseFile(QString &filename)
     return route;
 }
 
-QList<GeoRoute> GpxParser::parse(QStringList &filenames)
+QList<GeoRoute> GpxParser::parse(const QStringList &filenames)
 {
     QList<GeoRoute> routes;
     for (int i = 0; i < filenames.length(); i++)

@@ -15,7 +15,13 @@ void TestCoder::encode()
         QGeoCoordinate(41.83499,-87.66241)
     };
 
-    QCOMPARE(Coder::encode(route1), QString("}qn~FftzuOr{Bre@rXduC"));
+    QList<QList<QString>> polyline(Coder::encode(route1));
+    QString s;
+    foreach (QList<QString> coord, polyline)
+    {
+        s += coord.at(0) + coord.at(1);
+    }
+    QCOMPARE(s, QString("}qn~FftzuOr{Bre@rXduC"));
 }
 
 void TestCoder::decode()

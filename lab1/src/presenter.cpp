@@ -13,18 +13,119 @@ Presenter::Presenter(Model *model, MainWindow *view, QObject *parent) :
         m_view = new MainWindow();
     m_view->show();
 
-    connect(m_view, SIGNAL(Open(QStringList)), this, SLOT(addRoutesFromFile(QStringList)));
-    connect(m_model, SIGNAL(RouteWasCreated(GeoRoute)), this, SLOT(showRoute(GeoRoute)));
+    connect(m_view, SIGNAL(s_fromFile(QStringList)), this, SLOT(addRoutesFromFile(QStringList)));
+    connect(m_view, SIGNAL(s_fromPolyline(QString)), this, SLOT(addRouteFromPolyline(QString)));
+    connect(m_view, SIGNAL(s_insertRoute(int)), this, SLOT(createRoute(int)));
+    connect(m_view, SIGNAL(s_deleteRoute(int)), this, SLOT(removeRoute(int)));
+    connect(m_view, SIGNAL(s_insertCoordinate(int, int)), this, SLOT(createCoordinate(int, int)));
+    connect(m_view, SIGNAL(s_deleteCoordinate(int, int)), this, SLOT(removeCoordinate(int, int)));
+    connect(m_view, SIGNAL(s_changePolyline(int)), this, SLOT(polyline(int)));
+    connect(m_view, SIGNAL(s_changeRoute(int, QString)), this, SLOT(editRouteName(int, QString)));
+    connect(m_view, SIGNAL(s_changeCoordinate(int, int, int, double)), this, SLOT(editCoordinate(int, int, int, double)));
+
+    connect(m_view, SIGNAL(s_redo()), this, SLOT(redo()));
+    connect(m_view, SIGNAL(s_undo()), this, SLOT(undo()));
+
+    connect(m_model, SIGNAL(s_routeCreated(GeoRoute, int)), this, SLOT(insertRoute(GeoRoute, int)));
+    connect(m_model, SIGNAL(s_routeRemoved(int)), this, SLOT(deleteRoute(int)));
+    connect(m_model, SIGNAL(s_coordinateCreated(QGeoCoordinate, int, int)), this, SLOT(insertCoordinate(QGeoCoordinate, int, int)));
+    connect(m_model, SIGNAL(s_coordinateRemoved(int, int)), this, SLOT(deleteCoordinate(int, int)));
+    connect(m_model, SIGNAL(s_polylineChanged(QString)), this, SLOT(changePolyline(QString)));
+    connect(m_model, SIGNAL(s_nameChanged(QString, int)), this, SLOT(changeRouteName(QString, int)));
+    connect(m_model, SIGNAL(s_coordinateChanged(double, int, int, int)), this, SLOT(changeCoordinate(double, int, int, int)));
 
     m_model->loadFromSave();
 }
 
-void Presenter::addRoutesFromFile(QStringList l)
+void Presenter::addRoutesFromFile(const QStringList files)
 {
-    m_model->addRoutesFromFiles(l);
+    if (files.length())
+        m_model->addRoutesFromFiles(files);
 }
 
-void Presenter::showRoute(const GeoRoute &route)
+void Presenter::addRouteFromPolyline(const QString polyline)
 {
-    m_view->showRoute(route);
+    if (polyline.length())
+        m_model->addRouteFromPolyline(polyline);
+}
+
+void Presenter::insertRoute(const GeoRoute route, int index)
+{
+    m_view->insertRoute(route, index);
+}
+
+void Presenter::deleteRoute(int index)
+{
+    m_view->deleteRoute(index);
+}
+
+void Presenter::createRoute(int index)
+{
+    m_model->createRoute(index, GeoRoute());
+    m_director.addCommand(new CreateRouteCommand(m_model, index, GeoRoute()));
+}
+
+void Presenter::createCoordinate(int route, int index)
+{
+    m_model->createCoordinate(route, index);
+}
+
+void Presenter::insertCoordinate(const QGeoCoordinate coordinate, int route, int index)
+{
+    m_view->insertCoordinate(coordinate, route, index);
+}
+
+void Presenter::removeCoordinate(int route, int index)
+{
+    m_model->removeCoordinate(route, index);
+}
+
+void Presenter::deleteCoordinate(int route, int index)
+{
+    m_view->deleteCoordinate(route, index);
+}
+
+void Presenter::changePolyline(QString s)
+{
+    m_view->changePolyline(s);
+}
+
+void Presenter::polyline(int route)
+{
+    changePolyline(m_model->getPolyline(route));
+}
+
+void Presenter::changeRouteName(QString newname, int index)
+{
+    m_view->changeRoute(index, newname);
+}
+
+void Presenter::changeCoordinate(double newvalue, int route, int index, int column)
+{
+    m_view->changeCoordinate(route, index, column, newvalue);
+}
+
+void Presenter::redo()
+{
+    m_director.redo();
+}
+
+void Presenter::undo()
+{
+    m_director.undo();
+}
+
+void Presenter::editRouteName(int index, QString name)
+{
+    m_model->editRouteName(index, name);
+}
+
+void Presenter::editCoordinate(int route, int index, int column, double newvalue)
+{
+    m_model->editCoordinate(route, index, column, newvalue);
+}
+
+void Presenter::removeRoute(int index)
+{
+    m_model->removeRoute(index);
 }

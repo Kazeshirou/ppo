@@ -3,14 +3,17 @@
 #include "georoute.h"
 
 #include <QFileDialog>
-#include <QDebug>
 #include <QMessageBox>
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
-    ui(new Ui::MainWindow)
+    ui(new Ui::MainWindow),
+    currentroute(-1)
 {
     ui->setupUi(this);
+    connect(ui->routes, SIGNAL(itemSelectionChanged()), this, SLOT(selectionChanged()));
+    connect(ui->routes, SIGNAL(s_changeCoordinate(int, int, int, double)), this, SIGNAL(s_changeCoordinate(int, int, int, double)));
+    connect(ui->routes, SIGNAL(s_changeRoute(int, QString)), this, SIGNAL(s_changeRoute(int, QString)));
 }
 
 MainWindow::~MainWindow()
@@ -18,22 +21,52 @@ MainWindow::~MainWindow()
 
 }
 
-void MainWindow::showRoute(const GeoRoute &route)
+void MainWindow::insertRoute(const GeoRoute &route, int index)
 {
-    ui->routes->insertRoute(route);
+    ui->routes->insertRoute(route, index);
 }
 
+void MainWindow::insertCoordinate(const QGeoCoordinate &coordinate, int route, int index)
+{
+    ui->routes->insertCoordinate(coordinate, route, index);
+}
+
+void MainWindow::deleteRoute(int index)
+{
+    ui->routes->removeRoute(index);
+}
+
+void MainWindow::deleteCoordinate(int route, int index)
+{
+    ui->routes->removeCoordinate(route, index);
+}
+
+void MainWindow::changeRoute(int index, QString newname)
+{
+    ui->routes->changeRoute(index, newname);
+}
+
+void MainWindow::changeCoordinate(int route, int index, int column, double newvalue)
+{
+    ui->routes->changeCoordinate(route, index, column, newvalue);
+}
+
+void MainWindow::changePolyline(const QString &s)
+{
+    ui->polyline->setText(s);
+    update();
+}
 
 
 void MainWindow::on_insertroute_triggered()
 {
     int route = ui->routes->currentRoute();
     if (ui->routes->currentIsRoute())
-        ui->routes->insertRoute(GeoRoute(), route + 1);
+        emit s_insertRoute(route + 1);
     else
     {
         int coordinate = ui->routes->currentCoordinate();
-        ui->routes->insertCoordinate(QGeoCoordinate(0, 0, _nan()), route, coordinate + 1);
+        emit s_insertCoordinate(route, coordinate);
     }
 }
 
@@ -41,36 +74,43 @@ void MainWindow::on_deleteroute_triggered()
 {
     int route = ui->routes->currentRoute();
     if (ui->routes->currentIsRoute())
-        ui->routes->removeRoute(route);
+        emit s_deleteRoute(route);
     else
     {
         int coordinate = ui->routes->currentCoordinate();
-        ui->routes->removeCoordinate(route, coordinate);
+        emit s_deleteCoordinate(route, coordinate);
     }
 }
-
-
 
 void MainWindow::on_open_triggered()
 {
    QStringList filenames = QFileDialog::getOpenFileNames(this, "Выберите файлы", QString(), "*.gpx");
-   emit Open(filenames);
+   emit s_fromFile(filenames);
 }
 
 
 void MainWindow::on_pushButton_clicked()
 {
-    QString s = ui->polyline->document()->toPlainText();
-    emit fromPolyline(s);
+    QString s = ui->import_2->document()->toPlainText();
+    emit s_fromPolyline(s);
 }
 
 void MainWindow::on_undo_triggered()
 {
-
-    emit Undo();
+    emit s_undo();
 }
 
 void MainWindow::on_redo_triggered()
 {
-    emit Redo();
+    emit s_redo();
+}
+
+void MainWindow::selectionChanged()
+{
+    int r = ui->routes->currentRoute();
+    if (r != currentroute)
+    {
+        currentroute = r;
+        emit s_changePolyline(r);
+    }
 }
