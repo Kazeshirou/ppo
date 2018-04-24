@@ -37,4 +37,6 @@ Makefile*
 *qmake*
 *Debug
 *Release
+*debug
+*release
 moc_*

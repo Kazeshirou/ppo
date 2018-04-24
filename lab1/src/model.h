@@ -5,6 +5,9 @@
 #include "commanddirector.h"
 
 #include <QObject>
+#include <QtCharts/QLineSeries>
+
+QT_CHARTS_USE_NAMESPACE
 
 class Model : public QObject
 {
@@ -31,6 +34,8 @@ public:
     void save();
 
     QString getPolyline(int route);
+    QLineSeries *createSeries(int route);
+
 
     void redo();
     void undo();
@@ -43,6 +48,8 @@ signals:
     void s_coordinateRemoved(int route, int index);
     void s_coordinateChanged(double newvalue, int route, int index, int column);
     void s_polylineChanged(QString s);
+    void s_chartChanged(QLineSeries *s);
+    void s_lengthChanged(int index, double l);
 
 private:
     QList<GeoRoute> m_routes;

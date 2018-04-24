@@ -4,6 +4,9 @@
 #include "georoute.h"
 
 #include <QObject>
+#include <QtCharts/QLineSeries>
+
+QT_CHARTS_USE_NAMESPACE
 
 class Model;
 class MainWindow;
@@ -27,7 +30,9 @@ public slots:
     void removeCoordinate(int route, int index);
     void deleteCoordinate(int route, int index);
     void changePolyline(QString s);
-    void polyline(int route);
+    void changeChart(QLineSeries *s);
+    void changeRouteLength(int index, double l);
+    void routeChanged(int route);
     void changeRouteName(QString newname, int index);
     void changeCoordinate(double newvalue, int route, int index, int column);
     void editRouteName(int index, QString name);

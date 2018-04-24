@@ -1,9 +1,9 @@
 include(../common.pri)
 include(../app.pri)
 
-QT += core gui widgets positioning
+QT += core gui widgets positioning charts
 
-TARGET = routes
+TARGET = Routes
 TEMPLATE = app
 
 SOURCES += \

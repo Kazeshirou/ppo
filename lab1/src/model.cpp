@@ -74,10 +74,13 @@ void Model::createCoordinate(int route, int index, const QGeoCoordinate &coordin
     }
     else
         m_routes[route].insertCoordinate(index, coordinate);
+    m_routes[route].setDistance();
 
     m_director.addCommand(new CreateCoordinateCommand(this, route, index, coordinate));
     emit s_coordinateCreated(coordinate, route, index);
     emit s_polylineChanged(m_routes.at(route).getPolyline());
+    emit s_lengthChanged(route, m_routes[route].getDistance());
+    emit s_chartChanged(createSeries(route));
 }
 
 void Model::removeCoordinate(int route, int index)
@@ -91,9 +94,12 @@ void Model::removeCoordinate(int route, int index)
     if (m_routes.at(route).path().length() - 1)
     {
         m_routes[route].removeCoordinate(index);
+        m_routes[route].setDistance();
         m_director.addCommand(new RemoveCoordinateCommand(this, route, index, coord));
         emit s_coordinateRemoved(route, index);
         emit s_polylineChanged(m_routes.at(route).getPolyline());
+        emit s_lengthChanged(route, m_routes[route].getDistance());
+        emit s_chartChanged(createSeries(route));
     }
     else
     {
@@ -130,8 +136,11 @@ void Model::editCoordinate(int route, int index, int column, double newvalue)
         return;
     }
 
+    m_routes[route].setDistance();
     m_director.addCommand(new EditCoordinateCommand(this, route, index, column, newvalue, oldvalue));
     emit s_coordinateChanged(newvalue, route, index, column);
+    emit s_lengthChanged(route, m_routes[route].getDistance());
+    emit s_chartChanged(createSeries(route));
 }
 
 void Model::addRoutesFromFiles(const QStringList filenames)
@@ -167,6 +176,23 @@ QString Model::getPolyline(int route)
     if ((route >= 0) && (route < m_routes.length()))
         return m_routes.at(route).getPolyline();
     return QString();
+}
+
+QLineSeries *Model::createSeries(int route)
+{
+    QLineSeries *s = new QLineSeries();
+    if ((route < 0) || (route >= m_routes.length()))
+        return s;
+    double distance = 0;
+    GeoRoute r = m_routes.at(route);
+    int l = r.path().length();
+    for (int i = 0; i < l - 1; i++)
+    {
+        s->append(distance, r.coordinateAt(i).altitude());
+        distance += r.length(i, i + 1)/1000.;
+    }
+    s->append(distance, r.coordinateAt(l - 1).altitude());
+    return s;
 }
 
 void Model::redo()

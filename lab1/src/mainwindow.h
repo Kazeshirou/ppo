@@ -2,6 +2,10 @@
 #define MAINWINDOW_H
 
 #include <QMainWindow>
+#include <QtCharts/QChartView>
+#include <QtCharts/QLineSeries>
+
+QT_CHARTS_USE_NAMESPACE
 
 class GeoRoute;
 class QGeoCoordinate;
@@ -25,9 +29,12 @@ public:
     void deleteCoordinate(int route, int index = -1);
 
     void changeRoute(int index, QString newname);
+    void changeRouteLength(int index, double newlength);
     void changeCoordinate(int route, int index, int column, double newvalue);
 
     void changePolyline(const QString &s);
+
+    void changeChart(QLineSeries *s);
 
 signals:
     void s_fromFile(QStringList filenames);
@@ -45,7 +52,7 @@ signals:
     void s_redo();
     void s_undo();
 
-    void s_changePolyline(int route);
+    void s_changeCurrentRoute(int route);
 
 private slots:
     void on_insertroute_triggered();
@@ -65,6 +72,8 @@ private slots:
 private:
     Ui::MainWindow *ui;
     int currentroute;
+    QChartView *chart;
+
 };
 
 #endif // MAINWINDOW_H

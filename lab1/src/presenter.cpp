@@ -19,7 +19,7 @@ Presenter::Presenter(Model *model, MainWindow *view, QObject *parent) :
     connect(m_view, SIGNAL(s_deleteRoute(int)), this, SLOT(removeRoute(int)));
     connect(m_view, SIGNAL(s_insertCoordinate(int, int)), this, SLOT(createCoordinate(int, int)));
     connect(m_view, SIGNAL(s_deleteCoordinate(int, int)), this, SLOT(removeCoordinate(int, int)));
-    connect(m_view, SIGNAL(s_changePolyline(int)), this, SLOT(polyline(int)));
+    connect(m_view, SIGNAL(s_changeCurrentRoute(int)), this, SLOT(routeChanged(int)));
     connect(m_view, SIGNAL(s_changeRoute(int, QString)), this, SLOT(editRouteName(int, QString)));
     connect(m_view, SIGNAL(s_changeCoordinate(int, int, int, double)), this, SLOT(editCoordinate(int, int, int, double)));
 
@@ -31,8 +31,10 @@ Presenter::Presenter(Model *model, MainWindow *view, QObject *parent) :
     connect(m_model, SIGNAL(s_coordinateCreated(QGeoCoordinate, int, int)), this, SLOT(insertCoordinate(QGeoCoordinate, int, int)));
     connect(m_model, SIGNAL(s_coordinateRemoved(int, int)), this, SLOT(deleteCoordinate(int, int)));
     connect(m_model, SIGNAL(s_polylineChanged(QString)), this, SLOT(changePolyline(QString)));
+    connect(m_model, SIGNAL(s_chartChanged(QLineSeries*)), this, SLOT(changeChart(QLineSeries*)));
     connect(m_model, SIGNAL(s_nameChanged(QString, int)), this, SLOT(changeRouteName(QString, int)));
     connect(m_model, SIGNAL(s_coordinateChanged(double, int, int, int)), this, SLOT(changeCoordinate(double, int, int, int)));
+    connect(m_model, SIGNAL(s_lengthChanged(int, double)), this, SLOT(changeRouteLength(int, double)));
 
     m_model->loadFromSave();
 }
@@ -104,9 +106,21 @@ void Presenter::changePolyline(QString s)
     m_view->changePolyline(s);
 }
 
-void Presenter::polyline(int route)
+void Presenter::changeChart(QLineSeries *s)
+{
+    m_view->changeChart(s);
+}
+
+void Presenter::changeRouteLength(int index, double l)
+{
+    m_view->changeRouteLength(index, l);
+}
+
+void Presenter::routeChanged(int route)
 {
     changePolyline(m_model->getPolyline(route));
+    QLineSeries *s = m_model->createSeries(route);
+    changeChart(s);
 }
 
 void Presenter::changeRouteName(QString newname, int index)

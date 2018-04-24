@@ -11,6 +11,14 @@ MainWindow::MainWindow(QWidget *parent) :
     currentroute(-1)
 {
     ui->setupUi(this);
+    setWindowTitle("Routes");
+    QChart *c = new QChart();
+    c->legend()->hide();
+    c->createDefaultAxes();
+    chart = new QChartView(c);
+    chart->show();
+    chart->setRenderHint(QPainter::Antialiasing);
+    chart->resize(800, 600);
     connect(ui->routes, SIGNAL(itemSelectionChanged()), this, SLOT(selectionChanged()));
     connect(ui->routes, SIGNAL(s_changeCoordinate(int, int, int, double)), this, SIGNAL(s_changeCoordinate(int, int, int, double)));
     connect(ui->routes, SIGNAL(s_changeRoute(int, QString)), this, SIGNAL(s_changeRoute(int, QString)));
@@ -46,6 +54,11 @@ void MainWindow::changeRoute(int index, QString newname)
     ui->routes->changeRoute(index, newname);
 }
 
+void MainWindow::changeRouteLength(int index, double newlength)
+{
+    ui->routes->changeRouteLength(index, newlength);
+}
+
 void MainWindow::changeCoordinate(int route, int index, int column, double newvalue)
 {
     ui->routes->changeCoordinate(route, index, column, newvalue);
@@ -54,7 +67,14 @@ void MainWindow::changeCoordinate(int route, int index, int column, double newva
 void MainWindow::changePolyline(const QString &s)
 {
     ui->polyline->setText(s);
-    update();
+}
+
+void MainWindow::changeChart(QLineSeries *s)
+{
+    QChart *c = chart->chart();
+    c->removeAllSeries();
+    c->addSeries(s);
+    c->createDefaultAxes();
 }
 
 
@@ -111,6 +131,6 @@ void MainWindow::selectionChanged()
     if (r != currentroute)
     {
         currentroute = r;
-        emit s_changePolyline(r);
+        emit s_changeCurrentRoute(r);
     }
 }

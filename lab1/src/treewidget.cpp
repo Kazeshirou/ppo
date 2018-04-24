@@ -3,6 +3,7 @@
 
 #include <QLabel>
 #include <QLineEdit>
+#include <QDoubleSpinBox>
 
 TreeWidget::TreeWidget(QWidget *parent) :
     QTreeWidget(parent)
@@ -121,6 +122,13 @@ void TreeWidget::changeRoute(int index, QString newname)
         t->setData(0, Qt::DisplayRole | Qt::EditRole, QVariant(newname));
 }
 
+void TreeWidget::changeRouteLength(int index, double newlength)
+{
+    QTreeWidgetItem *t = topLevelItem(index);
+    if (t)
+        t->setData(1, Qt::DisplayRole | Qt::EditRole, QVariant(newlength));
+}
+
 void TreeWidget::changeCoordinate(int route, int index, int column, double newvalue)
 {
     QTreeWidgetItem *t = topLevelItem(route);
@@ -128,7 +136,7 @@ void TreeWidget::changeCoordinate(int route, int index, int column, double newva
     {
         t = t->child(index);
         if (t)
-            t->setData(column, Qt::DisplayRole | Qt::EditRole, QVariant(newvalue));
+            t->setData(column, Qt::DisplayRole | Qt::EditRole, QVariant(QString::number(newvalue)));
     }
 }
 
@@ -142,18 +150,29 @@ bool TreeWidget::edit(const QModelIndex &index, QAbstractItemView::EditTrigger t
 
 void TreeWidget::commitData(QWidget *editor)
 {
-    QString s = dynamic_cast<QLineEdit *>(editor)->text();
-    if (!s.length())
-        return;
+    QLineEdit *l = dynamic_cast<QLineEdit *>(editor);
+    if (l)
+    {
+        QString s = l->text();
+        if (!s.length())
+            return;
+        else
+        {
+            if (!currentIsRoute()) {
+                s.replace(',', '.');
+                emit s_changeCoordinate(currentRoute(), currentCoordinate(), currentIndex().column(),  s.toDouble());
+            }
+            else
+                emit s_changeRoute(currentRoute(), s);
+        }
+    }
     else
     {
-        if (!currentIsRoute()) {
-            s.replace(',', '.');
-            dynamic_cast<QLineEdit *>(editor)->setText(QString::number(s.toDouble()));
-            emit s_changeCoordinate(currentRoute(), currentCoordinate(), currentIndex().column(),  s.toDouble());
+        QDoubleSpinBox *s = dynamic_cast<QDoubleSpinBox *>(editor);
+        if (!currentIsRoute() && s) {
+            emit s_changeCoordinate(currentRoute(), currentCoordinate(), currentIndex().column(),  s->value());
         }
-        else
-            emit s_changeRoute(currentRoute(), s);
+
     }
 }
 

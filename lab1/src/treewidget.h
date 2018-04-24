@@ -25,6 +25,7 @@ public:
     bool currentIsRoute();
 
     void changeRoute(int index, QString newname);
+    void changeRouteLength(int index, double newlength);
     void changeCoordinate(int route, int index, int column, double newvalue);
 
 signals:
