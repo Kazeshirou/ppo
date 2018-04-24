@@ -80,8 +80,11 @@ GeoRoute GpxParser::parseFile(const QString &filename)
         QStringList l = filename.split('/');
         route.setName(l.last());
     }
-    trkseg.push_front(wpt[0]);
-    trkseg.push_back(wpt[1]);
+    if (wpt.length())
+    {
+        trkseg.push_front(wpt[0]);
+        trkseg.push_back(wpt[1]);
+    }
     route.setPath(trkseg);
     route.setDate();
     file.close();

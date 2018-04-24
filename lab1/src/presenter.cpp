@@ -49,6 +49,36 @@ void Presenter::addRouteFromPolyline(const QString polyline)
         m_model->addRouteFromPolyline(polyline);
 }
 
+void Presenter::createRoute(int index)
+{
+    m_model->createRoute(index, GeoRoute());
+}
+
+void Presenter::createCoordinate(int route, int index)
+{
+    m_model->createCoordinate(route, index);
+}
+
+void Presenter::removeCoordinate(int route, int index)
+{
+    m_model->removeCoordinate(route, index);
+}
+
+void Presenter::removeRoute(int index)
+{
+    m_model->removeRoute(index);
+}
+
+void Presenter::editRouteName(int index, QString name)
+{
+    m_model->editRouteName(index, name);
+}
+
+void Presenter::editCoordinate(int route, int index, int column, double newvalue)
+{
+    m_model->editCoordinate(route, index, column, newvalue);
+}
+
 void Presenter::insertRoute(const GeoRoute route, int index)
 {
     m_view->insertRoute(route, index);
@@ -59,25 +89,9 @@ void Presenter::deleteRoute(int index)
     m_view->deleteRoute(index);
 }
 
-void Presenter::createRoute(int index)
-{
-    m_model->createRoute(index, GeoRoute());
-    m_director.addCommand(new CreateRouteCommand(m_model, index, GeoRoute()));
-}
-
-void Presenter::createCoordinate(int route, int index)
-{
-    m_model->createCoordinate(route, index);
-}
-
 void Presenter::insertCoordinate(const QGeoCoordinate coordinate, int route, int index)
 {
     m_view->insertCoordinate(coordinate, route, index);
-}
-
-void Presenter::removeCoordinate(int route, int index)
-{
-    m_model->removeCoordinate(route, index);
 }
 
 void Presenter::deleteCoordinate(int route, int index)
@@ -107,25 +121,10 @@ void Presenter::changeCoordinate(double newvalue, int route, int index, int colu
 
 void Presenter::redo()
 {
-    m_director.redo();
+    m_model->redo();
 }
 
 void Presenter::undo()
 {
-    m_director.undo();
-}
-
-void Presenter::editRouteName(int index, QString name)
-{
-    m_model->editRouteName(index, name);
-}
-
-void Presenter::editCoordinate(int route, int index, int column, double newvalue)
-{
-    m_model->editCoordinate(route, index, column, newvalue);
-}
-
-void Presenter::removeRoute(int index)
-{
-    m_model->removeRoute(index);
+    m_model->undo();
 }

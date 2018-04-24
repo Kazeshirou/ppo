@@ -2,7 +2,6 @@
 #define PRESENTER_H
 
 #include "georoute.h"
-#include "commanddirector.h"
 
 #include <QObject>
 
@@ -31,15 +30,14 @@ public slots:
     void polyline(int route);
     void changeRouteName(QString newname, int index);
     void changeCoordinate(double newvalue, int route, int index, int column);
-    void redo();
-    void undo();
     void editRouteName(int index, QString name);
     void editCoordinate(int route, int index, int column, double newvalue);
+    void redo();
+    void undo();
 
 private:
     Model *m_model;
     MainWindow *m_view;
-    CommandDirector m_director;
 };
 
 #endif // PRESENTER_H

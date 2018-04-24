@@ -2,6 +2,7 @@
 #define MODEL_H
 
 #include "georoute.h"
+#include "commanddirector.h"
 
 #include <QObject>
 
@@ -17,7 +18,7 @@ public:
     void createRoute(int index = -1, const GeoRoute &route = GeoRoute());
     void removeRoute(int index);
 
-    void createCoordinate(int route, int index = -1);
+    void createCoordinate(int route, int index = -1, const QGeoCoordinate &coordinate = QGeoCoordinate(0, 0, nan("")));
     void removeCoordinate(int route, int index = -1);
 
     void editRouteName(int index, QString name);
@@ -31,6 +32,9 @@ public:
 
     QString getPolyline(int route);
 
+    void redo();
+    void undo();
+
 signals:
     void s_routeCreated(const GeoRoute &route, int index);
     void s_routeRemoved(int index);
@@ -42,6 +46,7 @@ signals:
 
 private:
     QList<GeoRoute> m_routes;
+    CommandDirector m_director;
 
 };
 
